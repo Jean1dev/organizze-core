@@ -1,28 +1,25 @@
 (ns app.core
   (:require [app.config :as config]
-            [io.pedestal.http :as http]
-            [io.pedestal.http.route :as route]))
+            [com.stuartsierra.component :as component]
+            [app.components.example-component :as example-component]
+            [app.components.pedestal-component :as pedestal-component]))
 
-(defn respond-handler
-  [request]
-  {:status 200
-   :body   "Hello, World!"})
+(defn organizze-api-system
+  [config]
+  (component/system-map
+    :example-component (example-component/new-example-component config)
 
-(def routes
-  (route/expand-routes
-    #{["/" :get respond-handler :route-name :home]}))
-
-(defn create-server []
-  (http/create-server
-    {::http/routes routes
-     ::http/type   :jetty
-     ::http/port   8080}))
-
-(defn start []
-  (http/start (create-server)))
+    :pedestal-component
+    (component/using
+      (pedestal-component/new-pedestal-component config)
+      [:example-component])))
 
 (defn -main
   []
-  (let [config (config/read-config)]
-    (println "App started with config:" config)
-    (start)))
+  (let [system (-> (config/read-config)
+                   (organizze-api-system)
+                   (component/start-system))]
+    (println "App started with config:" system)
+    (.addShutdownHook
+      (Runtime/getRuntime)
+      (new Thread #(component/stop-system system)))))

@@ -69,6 +69,7 @@
     <orderEntry type="library" name="Deps: crypto-random:1.2.1" level="project" />
     <orderEntry type="library" name="Deps: ring/ring-codec:1.2.0" level="project" />
     <orderEntry type="library" name="Deps: org.apache.httpcomponents/httpclient:4.5.13" level="project" />
+    <orderEntry type="library" name="Deps: prismatic/schema:1.4.1" level="project" />
     <orderEntry type="library" name="Deps: crypto-equality:1.0.1" level="project" />
     <orderEntry type="library" name="Deps: cheshire:5.11.0" level="project" />
     <orderEntry type="library" name="Deps: tigris:0.1.2" level="project" />

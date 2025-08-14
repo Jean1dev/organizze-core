@@ -6,6 +6,7 @@
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.route :as route]
             [cheshire.core :as json]
+            [next.jdbc :as jdbc]
             [schema.core :as s]))
 
 (defn response
@@ -89,9 +90,23 @@
      :enter (fn [context]
               (assoc context :dependencies dependencies))}))
 
+(def info-handler
+  :name :info-handler
+  :enter
+  (fn [{:keys [dependencies] :as context}]
+    (let [{:keys [data-source]} dependencies
+          db-response (first (jdbc/execute!
+                               (data-source)
+                               ["SHOW TABLES"]))]
+      (println "Database response:" db-response)
+      (assoc context :response {
+                                :status 200
+                                :body   "Database server" (:server-name db-response)}))))
+
 (def routes
   (route/expand-routes
     #{["/" :get respond-handler :route-name :home]
+      ["/info" :get info-handler :route-name :info]
       ["/todo/:todo-id" :get get-todo-handler :route-name :get-todo]
       ["/todo" :post [(body-params/body-params) post-todo-handler] :route-name :post-todo]}))
 
@@ -103,6 +118,7 @@
 (defrecord PedestalComponent
   [config
    example-component
+   data-source
    in-memory-state-component]
   component/Lifecycle
 

@@ -1,5 +1,6 @@
 (ns app.components.pedestal-component
   (:require [com.stuartsierra.component :as component]
+            [honey.sql :as sql]
             [io.pedestal.http :as http]
             [io.pedestal.interceptor :as interceptor]
             [io.pedestal.http.content-negotiation :as content-negotiation]
@@ -7,6 +8,7 @@
             [io.pedestal.http.route :as route]
             [cheshire.core :as json]
             [next.jdbc :as jdbc]
+            [next.jdbc.result-set :as rs]
             [schema.core :as s]))
 
 (defn response
@@ -103,12 +105,37 @@
                                 :status 200
                                 :body   "Database server" (:server-name db-response)}))))
 
+(def db-get-todo-handler
+  {:name :db-get-todo-handler
+   :enter
+   (fn [{:keys [dependencies] :as context}]
+     (let [{:keys [datasource]} dependencies
+           todo-id (-> context
+                       :request
+                       :path-params
+                       :todo-id
+                       (parse-uuid))
+           todo (jdbc/execute-one!
+                  (datasource)
+                  (-> {:select :*
+                       :from   :todo
+                       :where  [:= :todo-id todo-id]}
+                      (sql/format))
+                  {:builder-fn rs/as-unqualified-kebab-maps})
+           response (if todo
+                      (ok todo)
+                      (not-found))]
+       (assoc context :response response)))})
+
 (def routes
   (route/expand-routes
     #{["/" :get respond-handler :route-name :home]
       ["/info" :get info-handler :route-name :info]
       ["/todo/:todo-id" :get get-todo-handler :route-name :get-todo]
-      ["/todo" :post [(body-params/body-params) post-todo-handler] :route-name :post-todo]}))
+      ["/todo" :post [(body-params/body-params) post-todo-handler] :route-name :post-todo]
+
+      ["/db/todo/:todo-id" :get db-get-todo-handler :route-name :db-get-todo]
+      }))
 
 (def url-for (route/url-for-routes routes))
 

@@ -1,12 +1,13 @@
-(ns app.components.pedestal-component
-  (:require [com.stuartsierra.component :as component]
+(ns app.components.server-component
+  (:require [app.routes.categories :as categories]
+            [cheshire.core :as json]
+            [com.stuartsierra.component :as component]
             [honey.sql :as sql]
             [io.pedestal.http :as http]
-            [io.pedestal.interceptor :as interceptor]
-            [io.pedestal.http.content-negotiation :as content-negotiation]
             [io.pedestal.http.body-params :as body-params]
+            [io.pedestal.http.content-negotiation :as content-negotiation]
             [io.pedestal.http.route :as route]
-            [cheshire.core :as json]
+            [io.pedestal.interceptor :as interceptor]
             [next.jdbc :as jdbc]
             [next.jdbc.result-set :as rs]
             [schema.core :as s]))
@@ -126,22 +127,27 @@
                       (not-found))]
        (assoc context :response response)))})
 
+(def todo-routes
+  #{["/" :get respond-handler :route-name :home]
+    ["/info" :get info-handler :route-name :info]
+    ["/todo/:todo-id" :get get-todo-handler :route-name :get-todo]
+    ["/todo" :post [(body-params/body-params) post-todo-handler] :route-name :post-todo]
+
+    ["/db/todo/:todo-id" :get db-get-todo-handler :route-name :db-get-todo]
+    })
+
 (def routes
   (route/expand-routes
-    #{["/" :get respond-handler :route-name :home]
-      ["/info" :get info-handler :route-name :info]
-      ["/todo/:todo-id" :get get-todo-handler :route-name :get-todo]
-      ["/todo" :post [(body-params/body-params) post-todo-handler] :route-name :post-todo]
-
-      ["/db/todo/:todo-id" :get db-get-todo-handler :route-name :db-get-todo]
-      }))
+    (into #{}
+          (concat todo-routes
+                  categories/categories-routes))))
 
 (def url-for (route/url-for-routes routes))
 
 (def content-negotiation-interceptor
   (content-negotiation/negotiate-content ["application/json"]))
 
-(defrecord PedestalComponent
+(defrecord ServerComponent
   [config
    example-component
    data-source
@@ -149,7 +155,7 @@
   component/Lifecycle
 
   (start [component]
-    (println "Starting PedestalComponent")
+    (println "Starting ServerComponent")
     (let [server (-> {::http/routes routes
                       ::http/type   :jetty
                       ::http/join?  false
@@ -164,11 +170,11 @@
 
 
   (stop [component]
-    (println "Stopping PedestalComponent")
+    (println "Stopping ServerComponent")
     (when-let [server (:server component)]
       (http/stop server))
     (assoc component :server nil)))
 
-(defn new-pedestal-component
+(defn new-http-server-component
   [config]
-  (map->PedestalComponent {:config config}))
+  (map->ServerComponent {:config config}))

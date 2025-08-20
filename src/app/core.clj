@@ -1,10 +1,10 @@
 (ns app.core
   (:require [app.components.example-component :as example-component]
             [app.components.in-memory-state-component :as in-memory-state-component]
-            [app.components.pedestal-component :as pedestal-component]
+            [app.components.server-component :as server-component]
             [app.config :as config]
-            [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
+            [com.stuartsierra.component :as component]
             [next.jdbc.connection :as connection])
   (:import (com.zaxxer.hikari HikariDataSource)
            (org.flywaydb.core Flyway)))
@@ -32,9 +32,9 @@
 
     :datasource (datasource-component config)
 
-    :pedestal-component
+    :server-component
     (component/using
-      (pedestal-component/new-pedestal-component config)
+      (server-component/new-http-server-component config)
       [:example-component
        :datasource
        :in-memory-state-component])))

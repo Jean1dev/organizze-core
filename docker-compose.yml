@@ -8,7 +8,7 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: core
+      MYSQL_DATABASE: core2
       MYSQL_USER: organizze
       MYSQL_PASSWORD: organizze123
     command: --default-authentication-plugin=mysql_native_password

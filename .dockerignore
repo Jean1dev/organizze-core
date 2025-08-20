@@ -1,0 +1,9 @@
+.git
+.gitignore
+.idea
+.cpcache
+.nrepl-port
+organizze-core.iml
+test/
+dev/
+*.md

@@ -62,7 +62,7 @@
   [{:keys [in-memory-state-component]} todo]
   (swap! (:state-atom in-memory-state-component) conj todo))
 
-(defn post-todo-handler
+(def post-todo-handler
   {:name :post-todo-handler
    :enter
    (fn [{:keys [dependencies] :as context}]
@@ -93,17 +93,16 @@
               (assoc context :dependencies dependencies))}))
 
 (def info-handler
-  :name :info-handler
-  :enter
-  (fn [{:keys [dependencies] :as context}]
-    (let [{:keys [data-source]} dependencies
-          db-response (first (jdbc/execute!
-                               (data-source)
-                               ["SHOW TABLES"]))]
-      (println "Database response:" db-response)
-      (assoc context :response {
-                                :status 200
-                                :body   "Database server" (:server-name db-response)}))))
+  {:name :info-handler
+   :enter
+   (fn [{:keys [dependencies] :as context}]
+     (let [{:keys [datasource]} dependencies
+           db-response (first (jdbc/execute!
+                                (datasource)
+                                ["SELECT VERSION() as version"]))]
+       (assoc context :response
+                      {:status 200
+                       :body   (str "Database server version: " (:version db-response))})))})
 
 (def db-get-todo-handler
   {:name :db-get-todo-handler

@@ -13,6 +13,6 @@
     (println "Stopping InMemoryStateComponent")
     (assoc component :state nil)))
 
-(defn new-example-component
+(defn new-in-memory-component
   [config]
   (map->InMemoryStateComponent {:config config}))

@@ -1,5 +1,6 @@
 (ns app.components.server-component
   (:require [app.routes.categories :as categories]
+            [app.routes.transactions :as transactions]
             [cheshire.core :as json]
             [com.stuartsierra.component :as component]
             [honey.sql :as sql]
@@ -140,7 +141,8 @@
   (route/expand-routes
     (into #{}
           (concat todo-routes
-                  categories/categories-routes))))
+                  categories/categories-routes
+                  transactions/transactions-routes))))
 
 (def url-for (route/url-for-routes routes))
 

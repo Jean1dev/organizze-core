@@ -62,7 +62,7 @@
        (let [select-query (sql/format {:select [:id :name :uuid :kind]
                                        :from   :categories})
              result (jdbc/execute! (datasource) select-query {:builder-fn rs/as-unqualified-kebab-maps})]
-         (assoc context :response (response 200 result)))))})
+         (assoc context :response (ok result)))))})
 
 (def get-by-id-categories-handler
   {:name :get-by-id-categories-handler

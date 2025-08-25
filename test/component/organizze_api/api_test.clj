@@ -1,9 +1,10 @@
 (ns component.organizze-api.api-test
-  (:require [app.core :as core]
+  (:require [app.components.server-component :refer [url-for]]
+            [app.core :as core]
+            [clj-http.client :as client]
             [clojure.string :as str]
             [clojure.test :refer :all]
-            [com.stuartsierra.component :as component]
-            [clj-http.client :as client])
+            [com.stuartsierra.component :as component])
   (:import (java.net ServerSocket)))
 
 (defmacro with-system
@@ -13,7 +14,6 @@
        ~@body
        (finally
          (component/stop ~bound-var)))))
-
 
 (defn sut->url
   [sut path]

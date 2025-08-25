@@ -152,7 +152,7 @@
 (defrecord ServerComponent
   [config
    example-component
-   data-source
+   datasource
    in-memory-state-component]
   component/Lifecycle
 

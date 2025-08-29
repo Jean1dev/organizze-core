@@ -246,3 +246,116 @@
               (is (= (:description test-transaction) (:description created-transaction)))
               (is (= (:category_id test-transaction) (:category-id created-transaction)))
               (is (= (:amount_cents test-transaction) (:amount-cents created-transaction))))))))))
+
+(deftest post-transaction-with-installments-test
+  (let [database-container (create-database-container)]
+    (try
+      (.start database-container)
+      (with-system
+        [sut (core/organizze-api-system
+               {:server  {:port (get-free-port)}
+                :db-spec {:jdbcUrl  (.getJdbcUrl database-container)
+                          :username (.getUsername database-container)
+                          :password (.getPassword database-container)}})]
+        (let [{:keys [datasource]} sut
+              category-id (create-test-category datasource)
+              test-transaction {:description  "Installment Transaction"
+                                :notes        "Monthly installments"
+                                :category_id  category-id
+                                :amount_cents 12000
+                                :installments_attributes {:periodicity "monthly"
+                                                          :total 12}}
+              {:keys [status body]} (-> (sut->url sut
+                                                  (url-for :post-transaction))
+                                        (client/post {:accept           :json
+                                                      :content-type     :json
+                                                      :body             (cheshire/generate-string test-transaction)
+                                                      :as               :json
+                                                      :throw-exceptions false})
+                                        (select-keys [:body :status]))]
+          (is (= 201 status))
+          (is (contains? body :id))
+          (is (number? (:id body)))
+          (let [transaction-id (:id body)
+                {:keys [status body]} (-> (sut->url sut
+                                                    (url-for :get-transactions))
+                                          (client/get {:accept           :json
+                                                       :as               :json
+                                                       :throw-exceptions false})
+                                          (select-keys [:body :status]))]
+            (is (= 200 status))
+            (is (vector? body))
+            (let [created-transaction (first (filter #(= (:id %) transaction-id) body))]
+              (is (not (nil? created-transaction)))
+              (is (= (:description test-transaction) (:description created-transaction)))
+              (is (= (:category_id test-transaction) (:category-id created-transaction)))
+              (is (= (:amount_cents test-transaction) (:amount-cents created-transaction)))
+              (is (= true (:is-installment created-transaction)))
+              (is (= "monthly" (:installment-periodicity created-transaction)))
+              (is (= 12 (:installment-total created-transaction))))))))))
+
+(deftest get-transaction-installments-test
+  (let [database-container (create-database-container)]
+    (try
+      (.start database-container)
+      (with-system
+        [sut (core/organizze-api-system
+               {:server  {:port (get-free-port)}
+                :db-spec {:jdbcUrl  (.getJdbcUrl database-container)
+                          :username (.getUsername database-container)
+                          :password (.getPassword database-container)}})]
+        (let [{:keys [datasource]} sut
+              category-id (create-test-category datasource)
+              test-transaction {:description  "Installment Transaction"
+                                :notes        "Monthly installments"
+                                :category_id  category-id
+                                :amount_cents 12000
+                                :installments_attributes {:periodicity "monthly"
+                                                          :total 12}}
+              {:keys [status body]} (-> (sut->url sut
+                                                  (url-for :post-transaction))
+                                        (client/post {:accept           :json
+                                                      :content-type     :json
+                                                      :body             (cheshire/generate-string test-transaction)
+                                                      :as               :json
+                                                      :throw-exceptions false})
+                                        (select-keys [:body :status]))]
+          (is (= 201 status))
+          (let [transaction-id (:id body)
+                {:keys [status body]} (-> (sut->url sut
+                                                    (str "/transactions/" transaction-id "/installments"))
+                                          (client/get {:accept           :json
+                                                       :as               :json
+                                                       :throw-exceptions false})
+                                          (select-keys [:body :status]))]
+            (is (= 200 status))
+            (is (vector? body))
+            (is (= 12 (count body)))
+            (is (every? #(contains? % :id) body))
+            (is (every? #(contains? % :installment-number) body))
+            (is (every? #(contains? % :due-date) body))
+            (is (every? #(contains? % :amount-cents) body))
+            (is (every? #(contains? % :paid) body))
+            (is (= 1000 (first (map :amount-cents body))))
+            (is (= 1 (first (map :installment-number body))))
+            (is (= 12 (last (map :installment-number body))))))))))
+
+(deftest get-transaction-installments-not-found-test
+  (let [database-container (create-database-container)]
+    (try
+      (.start database-container)
+      (with-system
+        [sut (core/organizze-api-system
+               {:server  {:port (get-free-port)}
+                :db-spec {:jdbcUrl  (.getJdbcUrl database-container)
+                          :username (.getUsername database-container)
+                          :password (.getPassword database-container)}})]
+        (let [{:keys [status body]} (-> (sut->url sut
+                                                  "/transactions/999/installments")
+                                        (client/get {:accept           :json
+                                                     :as               :json
+                                                     :throw-exceptions false})
+                                        (select-keys [:body :status]))]
+          (is (= 404 status))
+          (is (or (and (map? body) (contains? body :error))
+                  (string? body))))))))

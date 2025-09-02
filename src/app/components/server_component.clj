@@ -165,17 +165,20 @@
 
   (start [component]
     (println "Starting ServerComponent")
-    (let [server (-> {::http/routes routes
-                      ::http/type   :jetty
-                      ::http/join?  false
-                      ::http/port   (-> config :server :port)}
-                     (http/default-interceptors)
-                     (update ::http/interceptors concat
-                             [(inject-dependencies component)
-                              content-negotiation-interceptor])
-                     (http/create-server)
-                     (http/start))]
-      (assoc component :server server)))
+    (let [port (-> config :server :port)]
+      (println "Server will start on port:" port)
+      (let [server (-> {::http/routes routes
+                        ::http/type   :jetty
+                        ::http/join?  false
+                        ::http/port   port}
+                       (http/default-interceptors)
+                       (update ::http/interceptors concat
+                               [(inject-dependencies component)
+                                content-negotiation-interceptor])
+                       (http/create-server)
+                       (http/start))]
+        (println "Server started successfully on port:" port)
+        (assoc component :server server))))
 
 
   (stop [component]

@@ -1,14 +1,29 @@
-
-/.idea
-/.cpcache
-/target
-/classes
-/checkouts
+# Leiningen
+target/
 pom.xml
 pom.xml.asc
 *.jar
 *.class
-/.lein-*
-/.nrepl-port
+
+# Clojure
 .cpcache/
-.lein-repl-history
+.lein-*
+.nrepl-port
+.stutter/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.calva/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local

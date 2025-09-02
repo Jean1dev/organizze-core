@@ -1,1 +1,1 @@
-web: clojure -m app.core
+web: lein run

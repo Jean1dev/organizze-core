@@ -1,1 +1,1 @@
-web: clojure -M:heroku -m app.core
+web: java -Dclojure.main.report=stderr -cp target/uberjar/organizze-core.jar clojure.main -m app.core

@@ -8,6 +8,7 @@ API core para o sistema Organizze desenvolvida em Clojure.
 - Conta no Heroku
 - Heroku CLI instalado
 - Git configurado
+- Clojure CLI instalado
 
 ### Passos para deploy
 
@@ -36,7 +37,7 @@ API core para o sistema Organizze desenvolvida em Clojure.
 5. **Faça o deploy:**
    ```bash
    git add .
-   git commit -m "Configuração para Heroku"
+   git commit -m "Configuração para Heroku com uberjar"
    git push heroku main
    ```
 
@@ -53,6 +54,7 @@ API core para o sistema Organizze desenvolvida em Clojure.
 - `resources/database/migrations/` - Migrações do banco de dados
 - `resources/config.edn` - Configuração da aplicação
 - `deps.edn` - Dependências e aliases do projeto
+- `build.sh` - Script de build para o Heroku
 
 ### Tecnologias utilizadas
 
@@ -63,6 +65,7 @@ API core para o sistema Organizze desenvolvida em Clojure.
 - Next.jdbc (acesso ao banco)
 - Flyway (migrações)
 - MySQL
+- Depstar (criação de uberjar)
 
 ### Desenvolvimento local
 
@@ -75,3 +78,16 @@ Para executar testes:
 ```bash
 clojure -M:test
 ```
+
+Para criar uberjar localmente:
+```bash
+clojure -M:uberjar
+```
+
+### Build no Heroku
+
+O Heroku automaticamente:
+1. Detecta que é um projeto Clojure
+2. Executa o script `build.sh` para criar o uberjar
+3. Usa o `Procfile` para executar a aplicação
+4. Roda a aplicação usando o uberjar criado

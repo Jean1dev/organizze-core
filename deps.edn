@@ -31,6 +31,11 @@
                   :main-opts   ["-m" "cognitect.test-runner"]
                   :exec-fn     cognitect.test-runner.api/test}
            :heroku {:jvm-opts ["-Xmx2g" "-Xms512m"]
-                    :main-opts ["-m" "app.core"]}}
+                    :main-opts ["-m" "app.core"]}
+           :uberjar {:extra-deps {seancorfield/depstar {:mvn/version "0.5.2"}}
+                     :exec-fn hf.depstar/uberjar
+                     :exec-args {:jar "target/organizze-core.jar"
+                                :main-class "app.core"
+                                :aot true}}}
 
  :paths ["src" "resources" "dev" "test"]}

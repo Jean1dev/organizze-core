@@ -1,1 +1,1 @@
-web: clojure -M:prod
+web: clojure -m app.core

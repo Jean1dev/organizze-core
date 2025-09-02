@@ -1,1 +1,1 @@
-web: clojure -M:dev
+web: clojure -M:prod

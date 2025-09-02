@@ -11,7 +11,8 @@
             [io.pedestal.interceptor :as interceptor]
             [next.jdbc :as jdbc]
             [next.jdbc.result-set :as rs]
-            [schema.core :as s]))
+            [schema.core :as s])
+  (:import (java.util UUID)))
 
 (defn response
   ([status]
@@ -37,6 +38,12 @@
   {:id    s/Str
    :name  s/Str
    :items [TodoItem]})
+
+(defn parse-uuid [uuid-string]
+  (try
+    (UUID/fromString uuid-string)
+    (catch IllegalArgumentException _
+      nil)))
 
 (comment
   [{:id    (random-uuid)

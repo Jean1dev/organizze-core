@@ -11,8 +11,7 @@
             [io.pedestal.interceptor :as interceptor]
             [next.jdbc :as jdbc]
             [next.jdbc.result-set :as rs]
-            [schema.core :as s])
-  (:import (java.util UUID)))
+            [schema.core :as s]))
 
 (defn response
   ([status]
@@ -39,12 +38,6 @@
    :name  s/Str
    :items [TodoItem]})
 
-(defn parse-uuid [uuid-string]
-  (try
-    (UUID/fromString uuid-string)
-    (catch IllegalArgumentException _
-      nil)))
-
 (comment
   [{:id    (random-uuid)
     :name  "My todo list"
@@ -56,7 +49,7 @@
     :items []}])
 
 (defn respond-handler
-  [request]
+  [_]
   {:status 200
    :body   "Hello, World!"})
 
@@ -164,13 +157,12 @@
   component/Lifecycle
 
   (start [component]
-    (println "Starting ServerComponent")
     (let [port (-> config :server :port)]
-      (println "Server will start on port:" port)
       (let [server (-> {::http/routes routes
                         ::http/type   :jetty
                         ::http/join?  false
-                        ::http/port   port}
+                        ::http/port   port
+                        ::http/host   "0.0.0.0"}
                        (http/default-interceptors)
                        (update ::http/interceptors concat
                                [(inject-dependencies component)
@@ -179,7 +171,6 @@
                        (http/start))]
         (println "Server started successfully on port:" port)
         (assoc component :server server))))
-
 
   (stop [component]
     (println "Stopping ServerComponent")

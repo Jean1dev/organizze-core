@@ -29,6 +29,8 @@
            :test {:extra-paths ["test"]
                   :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
                   :main-opts   ["-m" "cognitect.test-runner"]
-                  :exec-fn     cognitect.test-runner.api/test}}
+                  :exec-fn     cognitect.test-runner.api/test}
+           :heroku {:jvm-opts ["-Xmx2g" "-Xms512m"]
+                    :main-opts ["-m" "app.core"]}}
 
  :paths ["src" "resources" "dev" "test"]}

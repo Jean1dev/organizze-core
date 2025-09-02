@@ -1,3 +1,14 @@
 
 /.idea
 /.cpcache
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
+.cpcache/
+.lein-repl-history

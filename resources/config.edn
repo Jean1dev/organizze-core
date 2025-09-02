@@ -1,4 +1,4 @@
 {:server  {:port #long #or [#env PORT 8080]}
- :db-spec {:jdbcUrl  "jdbc:mysql://localhost:3306/core2?useSSL=false&allowPublicKeyRetrieval=true&verifyServerCertificate=false"
-           :username "root"
-           :password "root"}}
+ :db-spec {:jdbcUrl  #or [#env DATABASE_URL "jdbc:mysql://localhost:3306/core2?useSSL=false&allowPublicKeyRetrieval=true&verifyServerCertificate=false"]
+           :username #or [#env DATABASE_USER "root"]
+           :password #or [#env DATABASE_PASSWORD "root"]}}

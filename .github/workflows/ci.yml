@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Clojure
+      uses: DeLaGuette/setup-clojure@v5.2.0
+      with:
+        cli: 1.11.1
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/deps.edn') }}
+        restore-keys: ${{ runner.os }}-m2-
+
+    - name: Install dependencies
+      run: clojure -P
+
+    - name: Run tests
+      run: clojure -M:test
+

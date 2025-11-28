@@ -14,17 +14,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Clojure
-      uses: DeLaGuette/setup-clojure@v5.2.0
+    - name: Setup Java
+      uses: actions/setup-java@v4
       with:
-        cli: 1.11.1
+        distribution: 'temurin'
+        java-version: '17'
 
-    - name: Cache Maven dependencies
+    - name: Install Clojure CLI
+      run: |
+        curl -O https://download.clojure.org/install/linux-install-1.11.1.1165.sh
+        chmod +x linux-install-1.11.1.1165.sh
+        sudo ./linux-install-1.11.1.1165.sh
+
+    - name: Cache dependencies
       uses: actions/cache@v3
       with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/deps.edn') }}
-        restore-keys: ${{ runner.os }}-m2-
+        path: |
+          ~/.m2/repository
+          ~/.gitlibs
+        key: clojure-deps-${{ hashFiles('**/deps.edn') }}
+        restore-keys: |
+          clojure-deps-
 
     - name: Install dependencies
       run: clojure -P

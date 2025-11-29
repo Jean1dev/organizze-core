@@ -1,5 +1,5 @@
 (ns app.routes.transactions
-  (:require [cheshire.core :as json]
+  (:require [app.routes.utils :as utils]
             [clojure.tools.logging :as log]
             [honey.sql :as sql]
             [io.pedestal.http.body-params :as body-params]
@@ -21,19 +21,6 @@
    :amount_cents                   s/Int
    (s/optional-key :tags)          [{:name s/Str}]
    (s/optional-key :installments_attributes) InstallmentsAttributes})
-
-(defn response
-  ([status]
-   (response status nil))
-  ([status body]
-   (merge
-     {:status  status
-      :headers {"Content-Type" "application/json"}}
-     (when body {:body (json/encode body)}))))
-
-(def ok (partial response 200))
-(def created (partial response 201))
-(def not-found (partial response 404))
 
 (defn save-transaction-tags!
   [datasource transaction-id tags]
@@ -122,7 +109,7 @@
      (let [request (:request context)
            transaction (s/validate Transaction (:json-params request))
            id (save-transaction! ((:datasource dependencies)) transaction)]
-       (assoc context :response (created {:id id}))))})
+       (assoc context :response (utils/created {:id id}))))})
 
 (def get-all-transactions-handler
   {:name :get-all-transactions-handler
@@ -132,7 +119,7 @@
        (let [select-query (sql/format {:select [:id :description :date :category_id :amount_cents :is_installment :installment_periodicity :installment_total]
                                        :from   :transactions})
              result (jdbc/execute! (datasource) select-query {:builder-fn rs/as-unqualified-kebab-maps})]
-         (assoc context :response (ok result)))))})
+         (assoc context :response (utils/ok result)))))})
 
 (def get-transaction-installments-handler
   {:name :get-transaction-installments-handler
@@ -146,8 +133,8 @@
                                        :order-by [:installment_number]})
              result (jdbc/execute! (datasource) select-query {:builder-fn rs/as-unqualified-kebab-maps})]
          (if (seq result)
-           (assoc context :response (ok result))
-           (assoc context :response (not-found {:error "No installments found for this transaction"}))))))})
+           (assoc context :response (utils/ok result))
+           (assoc context :response (utils/not-found {:error "No installments found for this transaction"}))))))})
 
 (def transactions-routes
   #{["/transactions" :post [(body-params/body-params) post-transaction-handler] :route-name :post-transaction]

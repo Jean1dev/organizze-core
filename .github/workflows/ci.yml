@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install Clojure CLI
+      run: |
+        curl -O https://download.clojure.org/install/linux-install-1.11.1.1165.sh
+        chmod +x linux-install-1.11.1.1165.sh
+        sudo ./linux-install-1.11.1.1165.sh
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.m2/repository
+          ~/.gitlibs
+        key: clojure-deps-${{ hashFiles('**/deps.edn') }}
+        restore-keys: |
+          clojure-deps-
+
+    - name: Install dependencies
+      run: clojure -P
+
+    - name: Run tests
+      run: clojure -M:test
+

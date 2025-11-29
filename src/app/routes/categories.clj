@@ -1,5 +1,5 @@
 (ns app.routes.categories
-  (:require [cheshire.core :as json]
+  (:require [app.routes.utils :as utils]
             [clojure.tools.logging :as log]
             [honey.sql :as sql]
             [io.pedestal.http.body-params :as body-params]
@@ -15,19 +15,6 @@
    :essential    s/Bool
    :uuid         s/Str
    :kind         s/Str})
-
-(defn response
-  ([status]
-   (response status nil))
-  ([status body]
-   (merge
-     {:status status
-      :headers {"Content-Type" "application/json"}}
-     (when body {:body (json/encode body)}))))
-
-(def ok (partial response 200))
-(def created (partial response 201))
-(def not-found (partial response 404))
 
 (def get-categorie-id!
   (fn [datasource uuid]
@@ -52,7 +39,7 @@
      (let [request (:request context)
            categorie (s/validate Categorie (:json-params request))
            id (save-categorie! ((:datasource dependencies)) categorie)]
-       (assoc context :response (created {:id id}))))})
+       (assoc context :response (utils/created {:id id}))))})
 
 (def get-all-categories-handler
   {:name :get-all-categories-handler
@@ -62,7 +49,7 @@
        (let [select-query (sql/format {:select [:id :name :uuid :kind]
                                        :from   :categories})
              result (jdbc/execute! (datasource) select-query {:builder-fn rs/as-unqualified-kebab-maps})]
-         (assoc context :response (ok result)))))})
+         (assoc context :response (utils/ok result)))))})
 
 (def get-by-id-categories-handler
   {:name :get-by-id-categories-handler
@@ -81,8 +68,8 @@
                       (sql/format))
                   {:builder-fn rs/as-unqualified-kebab-maps})
            response (if categorie
-                      (ok categorie)
-                      (not-found))]
+                      (utils/ok categorie)
+                      (utils/not-found))]
        (assoc context :response response)))})
 
 (def categories-routes

@@ -1,7 +1,8 @@
 (ns app.components.server-component
   (:require [app.routes.categories :as categories]
+            [app.routes.imports :as imports]
             [app.routes.transactions :as transactions]
-            [cheshire.core :as json]
+            [app.routes.utils :as utils]
             [com.stuartsierra.component :as component]
             [honey.sql :as sql]
             [io.pedestal.http :as http]
@@ -12,19 +13,6 @@
             [next.jdbc :as jdbc]
             [next.jdbc.result-set :as rs]
             [schema.core :as s]))
-
-(defn response
-  ([status]
-   (response status nil))
-  ([status body]
-   (merge
-     {:status  status
-      :headers {"Content-Type" "application/json"}}
-     (when body {:body (json/encode body)}))))
-
-(def ok (partial response 200))
-(def created (partial response 201))
-(def not-found (partial response 404))
 
 (s/defschema
   TodoItem
@@ -71,7 +59,7 @@
      (let [request (:request context)
            todo (s/validate Todo (:json-params request))]
        (save-todo! dependencies todo)
-       (assoc context :response (created todo))))})
+       (assoc context :response (utils/created todo))))})
 
 (def get-todo-handler
   {:name :get-todo-handler
@@ -83,8 +71,8 @@
                                     :path-params
                                     :todo-id))
            response (if todo
-                      (ok todo)
-                      (not-found))]
+                      (utils/ok todo)
+                      (utils/not-found))]
        (assoc context :response response)))})
 
 (defn inject-dependencies
@@ -124,8 +112,8 @@
                       (sql/format))
                   {:builder-fn rs/as-unqualified-kebab-maps})
            response (if todo
-                      (ok todo)
-                      (not-found))]
+                      (utils/ok todo)
+                      (utils/not-found))]
        (assoc context :response response)))})
 
 (def todo-routes
@@ -142,6 +130,7 @@
     (into #{}
           (concat todo-routes
                   categories/categories-routes
+                  imports/import-routes
                   transactions/transactions-routes))))
 
 (def url-for (route/url-for-routes routes))

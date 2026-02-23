@@ -148,3 +148,30 @@
             (is (contains? body :error)))))
       (finally
         (.stop database-container)))))
+
+(deftest post-monthly-interest-test
+  (let [database-container (create-database-container)]
+    (try
+      (.start database-container)
+      (with-system
+        [sut (core/organizze-api-system
+               {:server  {:port (get-free-port)}
+                :db-spec {:jdbcUrl  (.getJdbcUrl database-container)
+                          :username (.getUsername database-container)
+                          :password (.getPassword database-container)}})]
+        (let [payload {:amount_cents 74
+                       :year         2026
+                       :month        2}
+              {:keys [status body]} (-> (sut->url sut (url-for :post-monthly-interest))
+                                       (client/post {:accept           :json
+                                                     :content-type     :json
+                                                     :body             (cheshire/generate-string payload)
+                                                     :as               :json
+                                                     :throw-exceptions false})
+                                       (select-keys [:body :status]))]
+          (is (= 201 status))
+          (is (contains? body :id))
+          (is (number? (:id body)))
+          (is (pos? (:id body))))))
+      (finally
+        (.stop database-container))))

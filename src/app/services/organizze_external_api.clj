@@ -29,3 +29,11 @@
                    :socket-timeout TIMEOUT-MS
                    :connection-timeout TIMEOUT-MS})))
 
+(defn fetch-transactions
+  [config]
+  (let [base-url (get-in config [:organizze-external-api :baseUrl])
+        url (str base-url "/transactions")
+        headers (build-headers config)]
+    (http/get url {:headers headers
+                   :socket-timeout TIMEOUT-MS
+                   :connection-timeout TIMEOUT-MS})))

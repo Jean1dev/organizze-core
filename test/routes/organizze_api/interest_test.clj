@@ -172,6 +172,6 @@
           (is (= 201 status))
           (is (contains? body :id))
           (is (number? (:id body)))
-          (is (pos? (:id body))))))
+          (is (pos? (:id body)))))
       (finally
-        (.stop database-container))))
+        (.stop database-container)))))

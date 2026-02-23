@@ -18,9 +18,10 @@
   [transaction year month]
   (let [date-str (get transaction :date)
         tx-date (when date-str (LocalDate/parse date-str))]
-    (and tx-date
-         (= year (.getYear tx-date))
-         (= month (.getMonthValue tx-date)))))
+    (if tx-date
+      (and (= year (.getYear tx-date))
+           (= month (.getMonthValue tx-date)))
+      false)))
 
 (defn filter-expenses
   [transactions]

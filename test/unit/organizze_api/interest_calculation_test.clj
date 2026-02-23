@@ -44,21 +44,21 @@
 
 (deftest monthly-recargapay-transactions-test
   (let [transactions [{:description "RECARGAPAY *A" :amount_cents -1000 :date "2026-02-05"}
-                      {:description "Other" :amount_cents -500 :date "2026-02-10"}
-                      {:description "RECARGAPAY *B" :amount_cents -200 :date "2026-01-15"}]]
-    (let [result (interest-calculation/monthly-recargapay-transactions transactions 2026 2)]
-      (is (= 2 (count result)))
-      (is (every? #(re-find #"(?i)RECARGAPAY" (:description %)) result))
-      (is (every? #(neg? (:amount_cents %)) result)))))
+                      {:description "RECARGAPAY *B" :amount_cents -500 :date "2026-02-10"}
+                      {:description "Other" :amount_cents -200 :date "2026-01-15"}]
+        result (vec (interest-calculation/monthly-recargapay-transactions transactions 2026 2))]
+    (is (= 2 (count result)) "expected 2 recargapay expenses in 2026-02")
+    (is (every? #(re-find #"(?i)RECARGAPAY" (or (:description %) "")) result) "all must have RECARGAPAY in description")
+    (is (every? #(neg? (:amount_cents %)) result) "all must be expenses")))
 
 (deftest transaction-summary-for-conference-test
   (let [tx {:id 1 :description "RECARGAPAY *X" :date "2026-02-05" :amount_cents -1000}
         summary (interest-calculation/transaction-summary-for-conference tx)]
-    (is (= 1 (:id summary)))
-    (is (= "RECARGAPAY *X" (:description summary)))
-    (is (= "2026-02-05" (:date summary)))
-    (is (= -1000 (:amount_cents summary)))
-    (is (= 40 (:interest_cents summary)))))
+    (is (= 1 (:id summary)) "id")
+    (is (= "RECARGAPAY *X" (:description summary)) "description")
+    (is (= "2026-02-05" (:date summary)) "date")
+    (is (= -1000 (:amount_cents summary)) "amount_cents")
+    (is (= 40 (:interest_cents summary)) "interest_cents 4% of 1000")))
 
 (deftest monthly-recargapay-interest-cents-test
   (let [current (LocalDate/now)
@@ -69,9 +69,9 @@
                       {:description "RECARGAPAY *B" :amount_cents -500 :date date-str}
                       {:description "Other" :amount_cents -200 :date date-str}
                       {:description "RECARGAPAY *C" :amount_cents 100 :date date-str}]]
-    (is (= 60 (interest-calculation/monthly-recargapay-interest-cents transactions year month))))
+    (is (= 60 (interest-calculation/monthly-recargapay-interest-cents transactions year month)) "current month: 40+20=60"))
   (let [transactions [{:description "RECARGAPAY *A" :amount_cents -1000 :date "2026-02-05"}
                       {:description "RECARGAPAY *B" :amount_cents -500 :date "2026-01-15"}]]
-    (is (= 40 (interest-calculation/monthly-recargapay-interest-cents transactions 2026 2))))
+    (is (= 40 (interest-calculation/monthly-recargapay-interest-cents transactions 2026 2)) "2026-02: only first tx"))
   (let [transactions []]
-    (is (= 0 (interest-calculation/monthly-recargapay-interest-cents transactions 2026 2)))))
+    (is (= 0 (interest-calculation/monthly-recargapay-interest-cents transactions 2026 2)) "empty list")))

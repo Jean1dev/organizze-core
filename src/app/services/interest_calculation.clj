@@ -44,10 +44,23 @@
   [transactions]
   (reduce + 0 (map interest-cents-for-transaction transactions)))
 
-(defn monthly-recargapay-interest-cents
+(defn monthly-recargapay-transactions
   [transactions year month]
   (-> transactions
       (filter-by-month year month)
       (filter-expenses)
-      (filter-recargapay)
+      (filter-recargapay)))
+
+(defn transaction-summary-for-conference
+  [transaction]
+  {:id             (get transaction :id)
+   :description    (get transaction :description)
+   :date           (get transaction :date)
+   :amount_cents   (get transaction :amount_cents)
+   :interest_cents  (interest-cents-for-transaction transaction)})
+
+(defn monthly-recargapay-interest-cents
+  [transactions year month]
+  (-> transactions
+      (monthly-recargapay-transactions year month)
       (total-interest-cents)))

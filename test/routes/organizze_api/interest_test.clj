@@ -90,7 +90,17 @@
               (is (= 74 (:interest_cents body)))
               (is (= 0.74 (:interest_brl body)))
               (is (= (.getYear (LocalDate/now)) (:year body)))
-              (is (= (.getMonthValue (LocalDate/now)) (:month body)))))))
+              (is (= (.getMonthValue (LocalDate/now)) (:month body)))
+              (is (contains? body :items))
+              (is (vector? (:items body)))
+              (is (= 2 (count (:items body))))
+              (is (every? #(contains? % :interest_cents) (:items body)))
+              (is (every? #(contains? % :amount_cents) (:items body)))
+              (is (every? #(contains? % :description) (:items body)))
+              (let [items (:items body)
+                    by-desc (fn [d] (first (filter #(= d (:description %)) items)))]
+                (is (= 54 (:interest_cents (by-desc "RECARGAPAY *JEANLUCAF"))))
+                (is (= 20 (:interest_cents (by-desc "RECARGAPAY *OTHER")))))))))
       (finally
         (.stop database-container)))))
 
@@ -113,7 +123,8 @@
                                             (select-keys [:body :status]))]
               (is (= 200 status))
               (is (= 0 (:interest_cents body)))
-              (is (= 0.0 (:interest_brl body)))))))
+              (is (= 0.0 (:interest_brl body)))
+              (is (= [] (:items body)))))))
       (finally
         (.stop database-container)))))
 

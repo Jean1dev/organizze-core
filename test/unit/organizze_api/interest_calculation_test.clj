@@ -42,6 +42,24 @@
     (is (= 60 (interest-calculation/total-interest-cents transactions))))
   (is (= 0 (interest-calculation/total-interest-cents []))))
 
+(deftest monthly-recargapay-transactions-test
+  (let [transactions [{:description "RECARGAPAY *A" :amount_cents -1000 :date "2026-02-05"}
+                      {:description "Other" :amount_cents -500 :date "2026-02-10"}
+                      {:description "RECARGAPAY *B" :amount_cents -200 :date "2026-01-15"}]]
+    (let [result (interest-calculation/monthly-recargapay-transactions transactions 2026 2)]
+      (is (= 2 (count result)))
+      (is (every? #(re-find #"(?i)RECARGAPAY" (:description %)) result))
+      (is (every? #(neg? (:amount_cents %)) result)))))
+
+(deftest transaction-summary-for-conference-test
+  (let [tx {:id 1 :description "RECARGAPAY *X" :date "2026-02-05" :amount_cents -1000}
+        summary (interest-calculation/transaction-summary-for-conference tx)]
+    (is (= 1 (:id summary)))
+    (is (= "RECARGAPAY *X" (:description summary)))
+    (is (= "2026-02-05" (:date summary)))
+    (is (= -1000 (:amount_cents summary)))
+    (is (= 40 (:interest_cents summary)))))
+
 (deftest monthly-recargapay-interest-cents-test
   (let [current (LocalDate/now)
         year (.getYear current)

@@ -22,13 +22,16 @@
              month (current-month)
              api-response (external-api/fetch-transactions config)
              transactions (json/parse-string (:body api-response) true)
-             interest-cents (interest-calculation/monthly-recargapay-interest-cents
-                             transactions year month)
+             filtered-txs (interest-calculation/monthly-recargapay-transactions
+                          transactions year month)
+             items (mapv interest-calculation/transaction-summary-for-conference filtered-txs)
+             interest-cents (interest-calculation/total-interest-cents filtered-txs)
              interest-brl (/ interest-cents 100.0)
              body {:interest_cents interest-cents
                    :interest_brl   interest-brl
                    :year           year
-                   :month          month}]
+                   :month          month
+                   :items          items}]
          (assoc context :response (utils/ok body)))
        (catch Exception e
          (log/error e "Error fetching monthly interest")

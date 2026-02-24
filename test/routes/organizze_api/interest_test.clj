@@ -145,7 +145,8 @@
                                                        :throw-exceptions false})
                                           (select-keys [:body :status]))]
             (is (= 500 status))
-            (is (contains? body :error)))))
+            (let [body-map (if (string? body) (cheshire/parse-string body true) body)]
+              (is (contains? body-map :error)))))))
       (finally
         (.stop database-container)))))
 

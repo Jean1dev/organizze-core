@@ -1,5 +1,6 @@
 (ns app.routes.categories
   (:require [app.routes.utils :as utils]
+            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [honey.sql :as sql]
             [io.pedestal.http.body-params :as body-params]
@@ -15,6 +16,13 @@
    :essential    s/Bool
    :uuid         s/Str
    :kind         s/Str})
+
+(def valid-kinds #{"expense" "income"})
+
+(defn valid-categorie?
+  [categorie]
+  (and (not (str/blank? (:name categorie)))
+       (contains? valid-kinds (:kind categorie))))
 
 (def get-categorie-id!
   (fn [datasource uuid]
@@ -37,9 +45,11 @@
    :enter
    (fn [{:keys [dependencies] :as context}]
      (let [request (:request context)
-           categorie (s/validate Categorie (:json-params request))
-           id (save-categorie! ((:datasource dependencies)) categorie)]
-       (assoc context :response (utils/created {:id id}))))})
+           categorie (s/validate Categorie (:json-params request))]
+       (if (valid-categorie? categorie)
+         (let [id (save-categorie! ((:datasource dependencies)) categorie)]
+           (assoc context :response (utils/created {:id id})))
+         (assoc context :response (utils/bad-request {:error "Invalid categorie data"})))))})
 
 (def get-all-categories-handler
   {:name :get-all-categories-handler

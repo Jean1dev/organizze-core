@@ -146,9 +146,9 @@
                                           (select-keys [:body :status]))]
             (is (= 500 status))
             (let [body-map (if (string? body) (cheshire/parse-string body true) body)]
-              (is (contains? body-map :error)))))))
+              (is (contains? body-map :error))))))
       (finally
-        (.stop database-container)))))
+        (.stop database-container))))
 
 (deftest post-monthly-interest-test
   (let [database-container (create-database-container)]

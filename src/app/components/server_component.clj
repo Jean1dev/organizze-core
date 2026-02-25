@@ -1,6 +1,7 @@
 (ns app.components.server-component
   (:require [app.routes.categories :as categories]
             [app.routes.imports :as imports]
+            [app.routes.interest :as interest]
             [app.routes.transactions :as transactions]
             [app.routes.utils :as utils]
             [com.stuartsierra.component :as component]
@@ -131,6 +132,7 @@
           (concat todo-routes
                   categories/categories-routes
                   imports/import-routes
+                  interest/interest-routes
                   transactions/transactions-routes))))
 
 (def url-for (route/url-for-routes routes))

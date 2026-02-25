@@ -194,10 +194,10 @@
                       :kind         (:kind test-categorie)}
                      (select-keys body [:id :id-organizze :name :group-id :essential :uuid :kind]))))))
         (testing "POST with invalid data should return error"
-          (let [invalid-categorie {:id_organizze "invalid"
+          (let [invalid-categorie {:id_organizze 1
                                    :name         ""
                                    :group_id     "group1"
-                                   :essential    "not-boolean"
+                                   :essential    false
                                    :uuid         "invalid-uuid"
                                    :kind         "invalid-kind"}
                 {:keys [status body]} (-> (sut->url sut

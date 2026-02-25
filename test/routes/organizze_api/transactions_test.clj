@@ -187,9 +187,9 @@
                           :password (.getPassword database-container)}})]
         (let [invalid-transaction {:description  ""
                                    :notes        "Test note"
-                                   :category_id  "invalid"
-                                   :amount_cents "not-a-number"
-                                   :tags         "invalid-tags"}
+                                   :category_id  99999
+                                   :amount_cents 1000
+                                   :tags         [{:name "tag1"}]}
               {:keys [status body]} (-> (sut->url sut
                                                   (url-for :post-transaction))
                                         (client/post {:accept           :json

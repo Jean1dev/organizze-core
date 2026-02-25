@@ -45,7 +45,7 @@
                 (if (fn? datasource) (datasource) datasource)
                 select-query
                 {:builder-fn rs/as-unqualified-lower-maps})]
-          (is (= 4 (count schema-versions)))
+          (is (= 5 (count schema-versions)))
           (is (= {:description "add todo tables"
                   :script      "V1__add_todo_tables.sql"
                   :success     true}

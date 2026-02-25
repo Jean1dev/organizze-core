@@ -1,5 +1,6 @@
 (ns app.routes.transactions
   (:require [app.routes.utils :as utils]
+            [clojure.string :as str]
             [clojure.tools.logging :as log]
             [honey.sql :as sql]
             [io.pedestal.http.body-params :as body-params]
@@ -102,14 +103,35 @@
       (save-installments! datasource transaction-id (:amount_cents transaction) (:installments_attributes transaction)))
     transaction-id))
 
+(defn category-exists?
+  [datasource category-id]
+  (let [query (sql/format {:select [:id]
+                           :from   :categories
+                           :where  [:= :id category-id]})
+        result (jdbc/execute-one! datasource query)]
+    (some? result)))
+
+(defn valid-transaction?
+  [transaction]
+  (not (str/blank? (:description transaction))))
+
 (def post-transaction-handler
   {:name :post-transaction-handler
    :enter
    (fn [{:keys [dependencies] :as context}]
      (let [request (:request context)
            transaction (s/validate Transaction (:json-params request))
-           id (save-transaction! ((:datasource dependencies)) transaction)]
-       (assoc context :response (utils/created {:id id}))))})
+           ds ((:datasource dependencies))]
+       (cond
+         (not (valid-transaction? transaction))
+         (assoc context :response (utils/bad-request {:error "Invalid transaction data"}))
+
+         (not (category-exists? ds (:category_id transaction)))
+         (assoc context :response (utils/bad-request {:error "Invalid category_id"}))
+
+         :else
+         (let [id (save-transaction! ds transaction)]
+           (assoc context :response (utils/created {:id id}))))))})
 
 (def get-all-transactions-handler
   {:name :get-all-transactions-handler

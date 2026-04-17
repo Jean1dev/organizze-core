@@ -1,5 +1,6 @@
 (ns app.components.server-component
   (:require [app.routes.categories :as categories]
+            [app.routes.food-spending :as food-spending]
             [app.routes.imports :as imports]
             [app.routes.interest :as interest]
             [app.routes.transactions :as transactions]
@@ -131,6 +132,7 @@
     (into #{}
           (concat todo-routes
                   categories/categories-routes
+                  food-spending/food-spending-routes
                   imports/import-routes
                   interest/interest-routes
                   transactions/transactions-routes))))

@@ -28,3 +28,4 @@ Thumbs.db
 .env
 .env.local
 /out
+clojure-tools-1.12.4.1618.tar.gz

@@ -65,8 +65,8 @@
    (fn [{:keys [dependencies] :as context}]
      (let [request    (:request context)
            params     (:query-params request)
-           year       (parse-int (get params "year"))
-           month      (parse-int (get params "month"))
+           year       (parse-int (get params :year))
+           month      (parse-int (get params :month))
            datasource (:datasource dependencies)
            ds         (datasource)
            filter     (build-period-filter year month)

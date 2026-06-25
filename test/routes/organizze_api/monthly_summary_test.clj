@@ -64,7 +64,6 @@
         (post-interest! sut 4200 2026 1)
         (post-food! sut 85000 2026 1)
         (post-interest! sut 3800 2026 2)
-
         (let [{:keys [status body]} (-> (sut->url sut (url-for :get-monthly-summary))
                                         (client/get {:accept           :json
                                                      :as               :json
@@ -90,7 +89,6 @@
         (post-interest! sut 4200 2026 3)
         (post-food! sut 85000 2026 3)
         (post-interest! sut 9999 2025 12)
-
         (let [{:keys [status body]} (-> (str (sut->url sut (url-for :get-monthly-summary)) "?year=2026&month=3")
                                         (client/get {:accept           :json
                                                      :as               :json
@@ -102,9 +100,9 @@
             (is (= 2026 (:year entry)))
             (is (= 3 (:month entry)))
             (is (= 4200 (:interest_cents entry)))
-            (is (= 85000 (:food_spending_cents entry)))))
-        (finally
-          (.stop database-container))))))
+            (is (= 85000 (:food_spending_cents entry))))))
+      (finally
+        (.stop database-container)))))
 
 (deftest get-monthly-summary-filter-by-year-only-test
   (let [database-container (create-database-container)]
@@ -119,7 +117,6 @@
         (post-food! sut 10000 2025 6)
         (post-food! sut 20000 2025 7)
         (post-interest! sut 500 2024 1)
-
         (let [{:keys [status body]} (-> (str (sut->url sut (url-for :get-monthly-summary)) "?year=2025")
                                         (client/get {:accept           :json
                                                      :as               :json
@@ -142,7 +139,6 @@
                           :username (.getUsername database-container)
                           :password (.getPassword database-container)}})]
         (post-interest! sut 1000 2026 5)
-
         (let [{:keys [status body]} (-> (str (sut->url sut (url-for :get-monthly-summary)) "?year=2026&month=5")
                                         (client/get {:accept           :json
                                                      :as               :json
@@ -151,9 +147,9 @@
           (is (= 200 status))
           (let [entry (first (:data body))]
             (is (= 1000 (:interest_cents entry)))
-            (is (nil? (:food_spending_cents entry)))))
-        (finally
-          (.stop database-container))))))
+            (is (nil? (:food_spending_cents entry))))))
+      (finally
+        (.stop database-container)))))
 
 (deftest get-monthly-summary-empty-result-test
   (let [database-container (create-database-container)]

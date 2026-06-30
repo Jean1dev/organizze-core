@@ -27,6 +27,9 @@
                               "-e" "(in-ns,'dev)"]}
            :test {:extra-paths ["test"]
                   :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+                  ;; Testcontainers empacota (shaded) o docker-java-core, que envia a API
+                  ;; Docker 1.32 por padrão; daemons recentes exigem >= 1.40. Forçamos a versão.
+                  :jvm-opts    ["-Dapi.version=1.41"]
                   :main-opts   ["-m" "cognitect.test-runner"]
                   :exec-fn     cognitect.test-runner.api/test}}
 

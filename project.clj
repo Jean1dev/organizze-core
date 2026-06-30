@@ -28,6 +28,7 @@
              :test {:dependencies [[org.testcontainers/testcontainers "1.21.3"]
                                   [org.testcontainers/postgresql "1.21.3"]
                                   [io.github.cognitect-labs/test-runner "0.5.1"]]
+                    :jvm-opts ["-Dapi.version=1.41"]
                     :source-paths ["src" "resources" "test"]
                     :test-paths ["test"]}}
   :main app.core

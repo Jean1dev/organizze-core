@@ -1,7 +1,7 @@
 {:server  {:port #long #or [#env PORT 8080]}
- :db-spec {:jdbcUrl  #or [#env DATABASE_URL "jdbc:mysql://localhost:3306/core2?useSSL=false&allowPublicKeyRetrieval=true&verifyServerCertificate=false"]
-           :username #or [#env DATABASE_USER "root"]
-           :password #or [#env DATABASE_PASSWORD "root"]}
+ :db-spec {:jdbcUrl  #or [#env DATABASE_URL "jdbc:postgresql://localhost:5432/core2"]
+           :username #or [#env DATABASE_USER "organizze"]
+           :password #or [#env DATABASE_PASSWORD "organizze123"]}
  :organizze-external-api {:baseUrl           #or [#env ORGANIZZE_API_BASE_URL "https://api.organizze.com.br/rest/v2"]
                           :headerUserName    #or [#env ORGANIZZE_USERNAME "Jeanluca (...)"]
                           :basicAuthPassword #or [#env BASIC_AUTH_PASSWORD "..."]

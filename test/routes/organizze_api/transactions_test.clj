@@ -11,7 +11,7 @@
             [next.jdbc.result-set :as rs])
   (:import (java.net ServerSocket)
            (java.util UUID)
-           (org.testcontainers.containers MySQLContainer)))
+           (org.testcontainers.containers PostgreSQLContainer)))
 
 (defmacro with-system
   [[bound-var binding-expr] & body]
@@ -34,10 +34,7 @@
 
 (defn create-database-container
   []
-  (doto (MySQLContainer. "mysql:8.0")
-    (.withUrlParam "useSSL" "false")
-    (.withUrlParam "allowPublicKeyRetrieval" "true")
-    (.withUrlParam "verifyServerCertificate" "false")))
+  (PostgreSQLContainer. "postgres:16"))
 
 (defn get-datasource-object
   [datasource]

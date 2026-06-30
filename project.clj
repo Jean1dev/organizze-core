@@ -14,20 +14,19 @@
                  [clj-http/clj-http "3.12.3"]
                  [prismatic/schema "1.4.1"]
                  [com.github.seancorfield/next.jdbc "1.3.883"]
-                 [mysql/mysql-connector-java "8.0.11"]
+                 [org.postgresql/postgresql "42.7.3"]
                  [com.zaxxer/HikariCP "5.0.1"]
                  [com.github.seancorfield/honeysql "2.4.1066"]
                  [org.flywaydb/flyway-core "9.21.2"]
-                 [org.flywaydb/flyway-mysql "9.0.2"]
                  [hiccup/hiccup "2.0.0-RC1"]
                  [faker/faker "0.3.2"]]
   :profiles {:uberjar {:aot :all
                         :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
-             :dev {:dependencies [[org.testcontainers/testcontainers "1.18.0"]
-                                 [org.testcontainers/mysql "1.21.3"]]
+             :dev {:dependencies [[org.testcontainers/testcontainers "1.21.3"]
+                                 [org.testcontainers/postgresql "1.21.3"]]
                    :source-paths ["src" "resources" "dev" "test"]}
-             :test {:dependencies [[org.testcontainers/testcontainers "1.18.0"]
-                                  [org.testcontainers/mysql "1.21.3"]
+             :test {:dependencies [[org.testcontainers/testcontainers "1.21.3"]
+                                  [org.testcontainers/postgresql "1.21.3"]
                                   [io.github.cognitect-labs/test-runner "0.5.1"]]
                     :source-paths ["src" "resources" "test"]
                     :test-paths ["test"]}}

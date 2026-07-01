@@ -3,6 +3,7 @@
             [app.routes.food-spending :as food-spending]
             [app.routes.imports :as imports]
             [app.routes.interest :as interest]
+            [app.routes.monthly-summary :as monthly-summary]
             [app.routes.transactions :as transactions]
             [app.routes.utils :as utils]
             [com.stuartsierra.component :as component]
@@ -135,6 +136,7 @@
                   food-spending/food-spending-routes
                   imports/import-routes
                   interest/interest-routes
+                  monthly-summary/monthly-summary-routes
                   transactions/transactions-routes))))
 
 (def url-for (route/url-for-routes routes))

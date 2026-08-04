@@ -1,14 +1,14 @@
 CREATE TABLE installments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     transaction_id INT NOT NULL,
     installment_number INT NOT NULL,
     due_date DATE NOT NULL,
     amount_cents INT NOT NULL,
     paid BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_installment (transaction_id, installment_number)
+    CONSTRAINT unique_installment UNIQUE (transaction_id, installment_number)
 );
 
 ALTER TABLE transactions 

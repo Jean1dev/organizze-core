@@ -66,17 +66,21 @@
    :enter
    (fn [{:keys [dependencies] :as context}]
      (let [{:keys [datasource]} dependencies
-           categorie-id (-> context
-                             :request
-                             :path-params
-                             :categorie-id)
-           categorie (jdbc/execute-one!
-                  (datasource)
-                  (-> {:select :*
-                       :from   :categories
-                       :where  [:= :id categorie-id]}
-                      (sql/format))
-                  {:builder-fn rs/as-unqualified-kebab-maps})
+           raw-id (-> context
+                      :request
+                      :path-params
+                      :categorie-id)
+           categorie-id (try
+                          (Integer/parseInt raw-id)
+                          (catch NumberFormatException _ nil))
+           categorie (when categorie-id
+                       (jdbc/execute-one!
+                         (datasource)
+                         (-> {:select :*
+                              :from   :categories
+                              :where  [:= :id categorie-id]}
+                             (sql/format))
+                         {:builder-fn rs/as-unqualified-kebab-maps}))
            response (if categorie
                       (utils/ok categorie)
                       (utils/not-found))]

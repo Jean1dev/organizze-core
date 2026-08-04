@@ -24,7 +24,7 @@ API core para o sistema Organizze desenvolvida em Clojure.
 
 3. **Configure as variáveis de ambiente:**
    ```bash
-   heroku config:set DATABASE_URL="jdbc:mysql://seu-host:3306/seu-banco?useSSL=false&allowPublicKeyRetrieval=true&verifyServerCertificate=false"
+   heroku config:set DATABASE_URL="jdbc:postgresql://seu-host:5432/seu-banco"
    heroku config:set DATABASE_USER="seu-usuario"
    heroku config:set DATABASE_PASSWORD="sua-senha"
    ```
@@ -64,7 +64,7 @@ API core para o sistema Organizze desenvolvida em Clojure.
 - Component (sistema de componentes)
 - Next.jdbc (acesso ao banco)
 - Flyway (migrações)
-- MySQL
+- PostgreSQL
 - Depstar (criação de uberjar)
 
 ### Desenvolvimento local

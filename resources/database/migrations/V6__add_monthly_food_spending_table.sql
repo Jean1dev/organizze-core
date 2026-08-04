@@ -1,5 +1,5 @@
 CREATE TABLE monthly_food_spending (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     amount_cents INT NOT NULL,
     year INT NOT NULL,
     month INT NOT NULL,

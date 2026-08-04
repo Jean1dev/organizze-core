@@ -9,7 +9,7 @@
             [com.stuartsierra.component :as component])
   (:import (java.net ServerSocket)
            (java.time LocalDate)
-           (org.testcontainers.containers MySQLContainer)))
+           (org.testcontainers.containers PostgreSQLContainer)))
 
 (defmacro with-system
   [[bound-var binding-expr] & body]
@@ -32,10 +32,7 @@
 
 (defn create-database-container
   []
-  (doto (MySQLContainer. "mysql:8.0")
-    (.withUrlParam "useSSL" "false")
-    (.withUrlParam "allowPublicKeyRetrieval" "true")
-    (.withUrlParam "verifyServerCertificate" "false")))
+  (PostgreSQLContainer. "postgres:16"))
 
 (defn current-month-transactions
   []

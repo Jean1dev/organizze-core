@@ -5,7 +5,7 @@
             [honey.sql :as sql]
             [next.jdbc :as jdbc]
             [next.jdbc.result-set :as rs])
-  (:import (org.testcontainers.containers MySQLContainer)))
+  (:import (org.testcontainers.containers PostgreSQLContainer)))
 
 
 (defmacro with-system
@@ -23,10 +23,7 @@
 
 (defn create-database-container
   []
-  (doto (MySQLContainer. "mysql:8.0")
-    (.withUrlParam "useSSL" "false")
-    (.withUrlParam "allowPublicKeyRetrieval" "true")
-    (.withUrlParam "verifyServerCertificate" "false")))
+  (PostgreSQLContainer. "postgres:16"))
 
 (deftest todo-table-test
   (let [database-container (create-database-container)]

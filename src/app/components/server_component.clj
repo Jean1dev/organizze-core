@@ -6,6 +6,7 @@
             [app.routes.monthly-summary :as monthly-summary]
             [app.routes.transactions :as transactions]
             [app.routes.utils :as utils]
+            [clojure.tools.logging :as log]
             [com.stuartsierra.component :as component]
             [honey.sql :as sql]
             [io.pedestal.http :as http]
@@ -144,6 +145,19 @@
 (def content-negotiation-interceptor
   (content-negotiation/negotiate-content ["application/json"]))
 
+;; Rede de segurança para exceções não tratadas pelos handlers de rota.
+;; Loga apenas o tipo/mensagem da exceção — nunca o :context (que carrega
+;; :dependencies com o :config completo, incluindo credenciais de banco e
+;; da API do Organizze) — e devolve uma resposta 500 genérica ao cliente.
+(def error-responder
+  (interceptor/interceptor
+    {:name ::error-responder
+     :error
+     (fn [context ex]
+       (let [cause (or (ex-cause ex) ex)]
+         (log/error "Unhandled exception in request pipeline:" (str cause))
+         (assoc context :response (utils/response 500 {:error "Internal server error"}))))}))
+
 (defrecord ServerComponent
   [config
    example-component
@@ -160,7 +174,8 @@
                         ::http/host   "0.0.0.0"}
                        (http/default-interceptors)
                        (update ::http/interceptors concat
-                               [(inject-dependencies component)
+                               [error-responder
+                                (inject-dependencies component)
                                 content-negotiation-interceptor])
                        (http/create-server)
                        (http/start))]

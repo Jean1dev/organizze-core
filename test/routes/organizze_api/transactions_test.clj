@@ -202,6 +202,33 @@
       (finally
         (.stop database-container)))))
 
+(deftest post-transaction-missing-category-id-test
+  (let [database-container (create-database-container)]
+    (try
+      (.start database-container)
+      (with-system
+        [sut (core/organizze-api-system
+               {:server  {:port (get-free-port)}
+                :db-spec {:jdbcUrl  (.getJdbcUrl database-container)
+                          :username (.getUsername database-container)
+                          :password (.getPassword database-container)}})]
+        (let [payload-without-category-id {:description  "livros"
+                                           :notes        "Criado pelo bot"
+                                           :amount_cents 15285}
+              {:keys [status body]} (-> (sut->url sut
+                                                  (url-for :post-transaction))
+                                        (client/post {:accept           :json
+                                                      :content-type     :json
+                                                      :body             (cheshire/generate-string payload-without-category-id)
+                                                      :as               :json
+                                                      :throw-exceptions false})
+                                        (select-keys [:body :status]))]
+          (is (= 400 status))
+          (is (map? body))
+          (is (contains? body :error))))
+      (finally
+        (.stop database-container)))))
+
 (deftest post-transaction-without-tags-test
   (let [database-container (create-database-container)]
     (try

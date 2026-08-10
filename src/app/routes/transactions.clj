@@ -120,18 +120,27 @@
    :enter
    (fn [{:keys [dependencies] :as context}]
      (let [request (:request context)
-           transaction (s/validate Transaction (:json-params request))
-           ds ((:datasource dependencies))]
-       (cond
-         (not (valid-transaction? transaction))
-         (assoc context :response (utils/bad-request {:error "Invalid transaction data"}))
+           ds ((:datasource dependencies))
+           validation (try
+                        {:transaction (s/validate Transaction (:json-params request))}
+                        (catch clojure.lang.ExceptionInfo e
+                          {:schema-error (pr-str (:error (ex-data e)))}))]
+       (if-let [schema-error (:schema-error validation)]
+         (do
+           (log/warn "Rejected invalid transaction payload:" schema-error)
+           (assoc context :response
+                  (utils/bad-request {:error "Invalid transaction payload" :details schema-error})))
+         (let [transaction (:transaction validation)]
+           (cond
+             (not (valid-transaction? transaction))
+             (assoc context :response (utils/bad-request {:error "Invalid transaction data"}))
 
-         (not (category-exists? ds (:category_id transaction)))
-         (assoc context :response (utils/bad-request {:error "Invalid category_id"}))
+             (not (category-exists? ds (:category_id transaction)))
+             (assoc context :response (utils/bad-request {:error "Invalid category_id"}))
 
-         :else
-         (let [id (save-transaction! ds transaction)]
-           (assoc context :response (utils/created {:id id}))))))})
+             :else
+             (let [id (save-transaction! ds transaction)]
+               (assoc context :response (utils/created {:id id}))))))))})
 
 (def get-all-transactions-handler
   {:name :get-all-transactions-handler

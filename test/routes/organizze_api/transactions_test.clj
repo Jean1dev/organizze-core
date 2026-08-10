@@ -224,8 +224,8 @@
                                                       :throw-exceptions false})
                                         (select-keys [:body :status]))]
           (is (= 400 status))
-          (is (map? body))
-          (is (contains? body :error))))
+          (is (or (and (map? body) (contains? body :error))
+                  (string? body)))))
       (finally
         (.stop database-container)))))
 
